@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Support;
+use App\Models\User;
+use Illuminate\Http\Request;
+
+class SupportController extends Controller
+{
+    // 応援フォーム表示
+    public function create(User $user)
+    {
+        return view('supports.create', compact('user'));
+    }
+
+    // 応援送信
+    public function store(Request $request, User $user)
+    {
+        $request->validate([
+            'comment' => 'nullable|string|max:255',
+            'stamp'   => 'nullable|string|max:10',
+        ]);
+    
+        Support::create([
+            'user_id' => auth()->id(),
+            'target_user_id' => $user->id,
+            'comment' => $request->comment,
+            'stamp' => $request->stamp,
+        ]);
+    
+        return redirect()->route('supports.chat', $user);
+    }
+    // 🔔 受信一覧ページ
+    public function inbox()
+    {
+        $supports = Support::where('target_user_id', auth()->id())
+            ->with('user') // 送信者情報取得
+            ->latest()
+            ->get();
+
+        return view('supports.inbox', compact('supports'));
+    }
+
+    // 👀 個別表示（開いたら既読）
+    public function show(Support $support)
+    {
+        // 自分宛のものだけ表示可能
+        if ($support->target_user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // 既読にする
+        $support->update([
+            'is_read' => true,
+        ]);
+
+        return view('supports.show', compact('support'));
+    }
+    public function chat(User $user)
+{
+    $supports = Support::where(function ($query) use ($user) {
+        $query->where('user_id', auth()->id())
+              ->where('target_user_id', $user->id);
+    })->orWhere(function ($query) use ($user) {
+        $query->where('user_id', $user->id)
+              ->where('target_user_id', auth()->id());
+    })
+    ->orderBy('created_at')
+    ->get();
+
+    return view('supports.chat', compact('user', 'supports'));
+}
+
+}
