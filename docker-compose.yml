@@ -1,32 +1,21 @@
-version: '3.8'
-services:
-  app:
-    build: .
-    volumes:
-      - .:/app
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-    environment:
-      DB_CONNECTION: mysql
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_DATABASE: studyLink
-      DB_USERNAME: root
-      DB_PASSWORD: secret
-    command: php artisan serve --host=0.0.0.0 --port=8000
+FROM php:8.2-cli
+WORKDIR /app
 
-  db:
-    image: mysql:8
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_DATABASE: studyLink
-    ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
+RUN apt-get update && apt-get install -y \
+    git unzip libpq-dev libzip-dev \
+    && docker-php-ext-install pdo pdo_mysql
 
-volumes:
-  db_data:
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+COPY . .
+
+RUN composer install --no-interaction --optimize-autoloader --prefer-dist --no-dev
+
+RUN chmod -R 777 storage bootstrap/cache
+
+# .envがなければ.env.exampleからコピー
+RUN cp -n .env.example .env || true
+
+EXPOSE 10000
+
+CMD php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
