@@ -3,7 +3,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
     git unzip libpq-dev libzip-dev \
-    && docker-php-ext-install pdo pdo_mysql
+    && docker-php-ext-install pdo pdo_pgsql
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -13,7 +13,6 @@ RUN composer install --no-interaction --optimize-autoloader --prefer-dist --no-d
 
 RUN chmod -R 777 storage bootstrap/cache
 
-# .envがなければ.env.exampleからコピー
 RUN cp -n .env.example .env || true
 
 EXPOSE 10000
