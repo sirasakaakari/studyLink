@@ -2,15 +2,22 @@ FROM php:8.2-cli
 
 WORKDIR /app
 
+# Node.jsインストール
 RUN apt-get update && apt-get install -y \
-    git unzip libpq-dev libzip-dev \
-    && docker-php-ext-install pdo pdo_pgsql
+    git unzip libpq-dev libzip-dev curl \
+    && docker-php-ext-install pdo pdo_pgsql \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY . .
 
+# PHP依存パッケージ
 RUN composer install --no-interaction --optimize-autoloader --prefer-dist --no-dev
+
+# フロントエンドビルド
+RUN npm install && npm run build
 
 RUN chmod -R 777 storage bootstrap/cache
 
