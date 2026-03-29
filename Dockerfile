@@ -18,18 +18,8 @@ RUN npm install && npm run build
 
 RUN chmod -R 777 storage bootstrap/cache
 
-# Nginx設定
-RUN echo 'server { \n\
-    listen ${PORT:-10000}; \n\
-    root /app/public; \n\
-    index index.php; \n\
-    location / { try_files $uri $uri/ /index.php?$query_string; } \n\
-    location ~ \.php$ { \n\
-        fastcgi_pass 127.0.0.1:9000; \n\
-        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name; \n\
-        include fastcgi_params; \n\
-    } \n\
-}' > /etc/nginx/sites-available/default
+# ここでCOPY！CMDより前に置く
+COPY nginx.conf /etc/nginx/sites-available/default
 
 EXPOSE 10000
 
@@ -46,5 +36,6 @@ CMD echo "APP_NAME=studyLink" > .env && \
     echo "DB_PASSWORD=${DB_PASSWORD}" >> .env && \
     echo "SESSION_DRIVER=database" >> .env && \
     php artisan migrate --force && \
+    sed -i "s/NGINX_PORT/${PORT:-10000}/" /etc/nginx/sites-available/default && \
     php-fpm -D && \
     nginx -g 'daemon off;'
