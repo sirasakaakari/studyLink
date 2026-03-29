@@ -1,10 +1,9 @@
-FROM php:8.2-cli
+FROM php:8.2-fpm
 
 WORKDIR /app
 
-# Node.jsインストール
 RUN apt-get update && apt-get install -y \
-    git unzip libpq-dev libzip-dev curl \
+    git unzip libpq-dev libzip-dev curl nginx \
     && docker-php-ext-install pdo pdo_pgsql \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs
@@ -13,13 +12,24 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY . .
 
-# PHP依存パッケージ
 RUN composer install --no-interaction --optimize-autoloader --prefer-dist --no-dev
 
-# フロントエンドビルド
 RUN npm install && npm run build
 
 RUN chmod -R 777 storage bootstrap/cache
+
+# Nginx設定
+RUN echo 'server { \n\
+    listen ${PORT:-10000}; \n\
+    root /app/public; \n\
+    index index.php; \n\
+    location / { try_files $uri $uri/ /index.php?$query_string; } \n\
+    location ~ \.php$ { \n\
+        fastcgi_pass 127.0.0.1:9000; \n\
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name; \n\
+        include fastcgi_params; \n\
+    } \n\
+}' > /etc/nginx/sites-available/default
 
 EXPOSE 10000
 
@@ -36,4 +46,5 @@ CMD echo "APP_NAME=studyLink" > .env && \
     echo "DB_PASSWORD=${DB_PASSWORD}" >> .env && \
     echo "SESSION_DRIVER=database" >> .env && \
     php artisan migrate --force && \
-    php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
+    php-fpm -D && \
+    nginx -g 'daemon off;'
