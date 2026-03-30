@@ -18,7 +18,6 @@ RUN npm install && npm run build
 
 RUN chmod -R 777 storage bootstrap/cache
 
-# ここでCOPY！CMDより前に置く
 COPY nginx.conf /etc/nginx/sites-available/default
 
 EXPOSE 10000
@@ -27,7 +26,7 @@ CMD echo "APP_NAME=studyLink" > .env && \
     echo "APP_ENV=${APP_ENV:-production}" >> .env && \
     echo "APP_KEY=${APP_KEY}" >> .env && \
     echo "APP_DEBUG=${APP_DEBUG:-false}" >> .env && \
-    echo "APP_URL=${APP_URL:-http://localhost}" >> .env && \
+    echo "APP_URL=${APP_URL:-https://studylink-fklm.onrender.com}" >> .env && \
     echo "DB_CONNECTION=${DB_CONNECTION:-pgsql}" >> .env && \
     echo "DB_HOST=${DB_HOST}" >> .env && \
     echo "DB_PORT=${DB_PORT:-5432}" >> .env && \
@@ -35,6 +34,7 @@ CMD echo "APP_NAME=studyLink" > .env && \
     echo "DB_USERNAME=${DB_USERNAME}" >> .env && \
     echo "DB_PASSWORD=${DB_PASSWORD}" >> .env && \
     echo "SESSION_DRIVER=database" >> .env && \
+    php artisan config:clear && \
     php artisan migrate --force && \
     sed -i "s/NGINX_PORT/${PORT:-10000}/" /etc/nginx/sites-available/default && \
     php-fpm -D && \
