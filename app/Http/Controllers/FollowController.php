@@ -13,18 +13,23 @@ class FollowController extends Controller
     {
         $authUser = Auth::user();
 
+        if (!$authUser || $authUser->is_guest) {
+            return redirect('/login')
+                ->with('error', 'フォローするには無料登録が必要です！');
+        }
         // 自分自身はフォロー不可
         if ($authUser->id === $user->id) {
             return back();
         }
-
         // すでにフォローしていなければ追加
-        if (! $authUser->isFollowing($user->id)) {
+        if (!$authUser->isFollowing($user->id)) {
             $authUser->followings()->attach($user->id);
         }
 
         return back();
     }
+
+    //
     // 自分がフォローしているユーザー一覧
     public function followings()
     {

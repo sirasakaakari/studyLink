@@ -11,6 +11,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoalController;
 use App\Models\User;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\AuthController;
+use App\Http\Middleware\CheckGuest;
 
 Route::get('/', function () {
     return view('welcome');
@@ -19,6 +21,15 @@ Route::get('/', function () {
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth'])
     ->name('dashboard');
+
+Route::get('/guest', function () {
+    return view('auth.guest');
+});
+
+
+Route::post('/follow', [FollowController::class, 'store'])
+    ->middleware(CheckGuest::class);
+Route::post('/guest-login', [AuthController::class, 'guestLogin']);
 
 Route::middleware('auth')->group(function () {
 

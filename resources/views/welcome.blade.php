@@ -34,8 +34,7 @@
                 新規登録
             </a>
         </div>
-
-        <a href="/flashcards" class="underline text-sm">
+        <a href="/guest" class="underline text-sm">
             ゲストで学習する
         </a>
     @endauth
