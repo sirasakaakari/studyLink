@@ -30,7 +30,7 @@ Route::get('/guest', function () {
 Route::post('/follow', [FollowController::class, 'store'])
     ->middleware(CheckGuest::class);
 Route::post('/guest-login', [AuthController::class, 'guestLogin']);
-
+Route::get('/guest-login', [AuthController::class, 'guestLogin']);
 Route::middleware('auth')->group(function () {
 
     // プロフィール

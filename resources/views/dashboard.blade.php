@@ -3,6 +3,14 @@
 
 @section('content')
 <div class="max-w-2xl mx-auto mt-8 space-y-6 px-4">
+    @if(auth()->check() && auth()->user()->is_guest)
+    <div class="bg-yellow-100 text-yellow-800 p-3 rounded mb-4 text-center">
+        ゲストモードです。登録するとすべての機能が使えます。
+        <a href="{{ route('register') }}" class="underline ml-2 font-bold">
+            登録する
+        </a>
+    </div>
+@endif
 @foreach($users as $user)
 @endforeach
 {{-- 学習リンク --}}
@@ -15,16 +23,6 @@
                 </a>
             </li>
             <li>
-                <a href="{{ route('profile.edit') }}" class="btn-pop btn-lavender w-full block">
-                    🧸 プロフィール編集
-                </a>
-            </li>
-            <li>
-                <a href="{{ route('followings.index') }}" class="btn-pop btn-mint w-full block">
-                    👯 フォロー中ユーザー一覧
-                </a>
-            </li>
-            <li>
                 <a href="{{ route('wordbooks.index') }}" class="btn-pop btn-yellow w-full block">
                     📖 マイ単語帳
                 </a>
@@ -33,6 +31,28 @@
                 <a href="{{ route('goals.create') }}" class="btn-pop btn-peach w-full block">
                     🎯 目標を設定する
                 </a>
+            </li>
+            <li>
+                @if(!auth()->user()->is_guest)
+                    <a href="{{ route('profile.edit') }}" class="btn-pop btn-lavender w-full block">
+                        🧸 プロフィール編集
+                    </a>
+                @else
+                    <a href="{{ route('register') }}" class="btn-pop btn-gray w-full block">
+                        登録してプロフィール編集
+                    </a>
+                @endif
+            </li>
+            <li>
+                @if(!auth()->user()->is_guest)
+                    <a href="{{ route('followings.index') }}" class="btn-pop btn-mint w-full block">
+                        👯 フォロー中ユーザー一覧
+                    </a>
+                @else
+                    <a href="{{ route('register') }}" class="btn-pop btn-gray w-full block">
+                        登録してフォロー一覧を見る
+                    </a>
+                @endif
             </li>
         </ul>
     </div>
@@ -96,24 +116,39 @@
                     <div class="avatar-bubble">{{ mb_substr($user->name, 0, 1) }}</div>
                     <span style="font-weight:700;color:#444;">{{ $user->name }}</span>
                 </div>
-                @if (auth()->id() !== $user->id)
+                @if(!auth()->user()->is_guest)
                     @if (auth()->user()->isFollowing($user->id))
                         <form action="{{ route('follow.destroy', $user) }}" method="POST">
                             @csrf
                             @method('DELETE')
-                            <button class="btn-pop btn-gray" style="padding:6px 14px;font-size:0.8rem;">フォロー解除</button>
+                            <button class="btn-pop btn-gray" style="padding:6px 14px;font-size:0.8rem;">
+                                フォロー解除
+                            </button>
                         </form>
                     @else
                         <form action="{{ route('follow.store', $user) }}" method="POST">
                             @csrf
-                            <button class="btn-pop btn-pink" style="padding:6px 14px;font-size:0.8rem;">＋ フォロー</button>
+                            <button class="btn-pop btn-pink" style="padding:6px 14px;font-size:0.8rem;">
+                                ＋ フォロー
+                            </button>
                         </form>
                     @endif
+                @else
+                    <a href="{{ route('register') }}"
+                    class="btn-pop btn-gray"
+                    style="padding:6px 14px;font-size:0.8rem;">
+                        登録してフォロー
+                    </a>
                 @endif
             </div>
         @empty
             <p style="color:#aaa;font-size:0.9rem;text-align:center;padding:16px 0;">おすすめユーザーはいません 🌸</p>
         @endforelse
+        @if(auth()->user()->is_guest)
+            <p class="text-sm text-gray-500 mt-2">
+                ※フォロー機能は登録が必要です
+            </p>
+        @endif
     </div>
 
     {{-- 応援したいユーザー --}}
@@ -125,11 +160,26 @@
                     <div class="avatar-bubble avatar-yellow">{{ mb_substr($user->name, 0, 1) }}</div>
                     <span style="font-weight:700;color:#444;">{{ $user->name }}</span>
                 </div>
-                <a href="{{ route('dm.show', $user->id) }}"class="btn-pop btn-yellow" style="padding:6px 14px;font-size:0.8rem;">
-                    📣 応援する
-                </a>
+                @if(!auth()->user()->is_guest)
+                    <a href="{{ route('dm.show', $user->id) }}"
+                    class="btn-pop btn-yellow"
+                    style="padding:6px 14px;font-size:0.8rem;">
+                        📣 応援する
+                    </a>
+                @else
+                    <a href="{{ route('register') }}"
+                    class="btn-pop btn-gray"
+                    style="padding:6px 14px;font-size:0.8rem;">
+                        登録して応援
+                    </a>
+                @endif
             </div>
         @endforeach
+        @if(auth()->user()->is_guest)
+            <p class="text-sm text-gray-500 mt-2">
+                ※応援機能は登録が必要です
+            </p>
+        @endif
     </div>
     {{-- 🎯 目標一覧 --}}
 @if($goals->count())

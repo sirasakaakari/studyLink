@@ -9,14 +9,10 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function guestLogin(Request $request)
+    public function guestLogin()
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
         $user = User::create([
-            'name' => $request->name,
+            'name' => 'ゲスト',
             'email' => 'guest_' . Str::random(10) . '@example.com',
             'password' => bcrypt(Str::random(16)),
             'is_guest' => true,

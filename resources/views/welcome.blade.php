@@ -34,9 +34,7 @@
                 新規登録
             </a>
         </div>
-        <a href="/guest" class="underline text-sm">
-            ゲストで学習する
-        </a>
+        <a href="{{ route('guest.login') }}"class="underline text-sm">ゲストで学習する</a>
     @endauth
 
 </div>

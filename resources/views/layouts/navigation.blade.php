@@ -31,13 +31,26 @@
     @auth
     <div class="hidden sm:flex sm:items-center sm:ms-6">
         <x-dropdown align="right" width="48">
-            <x-slot name="trigger">
+            <!-- <x-slot name="trigger">
                 <button class="inline-flex items-center px-3 py-2 text-sm font-medium
                                rounded-md text-gray-500 bg-white hover:text-gray-700">
                     {{ Auth::user()->name }}
                 </button>
-            </x-slot>
+            </x-slot> -->
+            <x-slot name="trigger">
+                <button class="inline-flex items-center px-3 py-2 text-sm font-medium
+                            rounded-md text-gray-500 bg-white hover:text-gray-700">
 
+                    @if(auth()->user()->is_guest)
+                        <span class="text-yellow-500 font-bold">
+                            ゲストモード
+                        </span>
+                    @else
+                        {{ Auth::user()->name }}
+                    @endif
+
+                </button>
+            </x-slot>
             <x-slot name="content">
                 <x-dropdown-link :href="route('profile.edit')">
                     プロフィール
@@ -55,10 +68,27 @@
     </div>
     @endauth
 
+    {{-- ゲスト --}}
+    @if(auth()->check() && auth()->user()->is_guest)
+        <div class="hidden sm:flex sm:items-center sm:ms-6 gap-4">
+            <a href="{{ route('register') }}" class="underline text-sm">
+                登録
+            </a>
+            <a href="{{ route('login') }}" class="underline text-sm">
+                ログイン
+            </a>
+        </div>
+    @endif
+
+    {{-- 未ログイン --}}
     @guest
-    <div class="hidden sm:flex sm:items-center sm:ms-6">
+        <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <a href="{{ route('login') }}" class="underline text-sm">ログイン</a>
+            <a href="{{ route('register') }}" class="underline text-sm ms-4">新規登録</a>
+        </div>
+    @endguest
+    <!-- <div class="hidden sm:flex sm:items-center sm:ms-6">
         <a href="{{ route('login') }}" class="underline text-sm">ログイン</a>
         <a href="{{ route('register') }}" class="underline text-sm ms-4">新規登録</a>
-    </div>
-    @endguest
+    </div> -->
 </div>
