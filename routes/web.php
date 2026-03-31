@@ -26,11 +26,11 @@ Route::get('/guest', function () {
     return view('auth.guest');
 });
 
+Route::get('/guest-login', [AuthController::class, 'guestLogin'])
+    ->name('guest.login');
 
 Route::post('/follow', [FollowController::class, 'store'])
     ->middleware(CheckGuest::class);
-Route::post('/guest-login', [AuthController::class, 'guestLogin']);
-Route::get('/guest-login', [AuthController::class, 'guestLogin']);
 Route::middleware('auth')->group(function () {
 
     // プロフィール
