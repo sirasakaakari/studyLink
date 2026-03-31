@@ -19,16 +19,3 @@ class NotificationController extends Controller
     }
 }
 
-// class NotificationController extends Controller
-// {
-//     public function read($id)
-//     {
-//         $notification = auth()->user()
-//             ->notifications()
-//             ->findOrFail($id);
-
-//         $notification->markAsRead();
-
-//         return back();
-//     }
-// }
