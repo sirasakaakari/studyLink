@@ -17,13 +17,17 @@ use App\Http\Middleware\CheckGuest;
 Route::get('/', function () {
     return view('welcome');
 });
-//
+
 // 確認後必ず削除！
-Route::get('/debug-users', function () {
-    return [
-        'has_column' => \Illuminate\Support\Facades\Schema::hasColumn('users', 'is_guest'),
-        'users' => App\Models\User::all(['id','name','email','is_guest']),
-    ];
+Route::get('/fix-guests', function () {
+    // メールアドレスがguest_で始まるユーザーをis_guest=trueに更新
+    $updated = App\Models\User::where('email', 'like', 'guest_%@example.com')
+        ->update(['is_guest' => true]);
+    
+    // is_guest=trueのユーザーを削除
+    $deleted = App\Models\User::where('is_guest', true)->delete();
+    
+    return "updated: {$updated}, deleted: {$deleted}";
 });
 //
 Route::get('/dashboard', [DashboardController::class, 'index'])
