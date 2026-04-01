@@ -20,6 +20,7 @@ class DashboardController extends Controller
             ->inRandomOrder()
             ->take(5)
             ->get();
+        dd($recommendedUsers); //
 
         $goals = Goal::where('user_id', Auth::id())->get();
 
