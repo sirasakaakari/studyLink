@@ -107,10 +107,11 @@
         </div>
     @endif
 
-    {{-- おすすめユーザー --}}
+    {{-- 🔥 おすすめユーザー --}}
     <div class="card-pop">
         <h3 class="section-title">🔥 おすすめユーザー</h3>
         @forelse ($recommendedUsers as $user)
+            @if(!$user->is_guest) {{-- 追加 --}}
             <div class="user-row">
                 <div class="flex items-center gap-2">
                     <div class="avatar-bubble">{{ mb_substr($user->name, 0, 1) }}</div>
@@ -141,46 +142,38 @@
                     </a>
                 @endif
             </div>
+            @endif
         @empty
             <p style="color:#aaa;font-size:0.9rem;text-align:center;padding:16px 0;">おすすめユーザーはいません 🌸</p>
         @endforelse
-        @if(auth()->user()->is_guest)
-            <p class="text-sm text-gray-500 mt-2">
-                ※フォロー機能は登録が必要です
-            </p>
-        @endif
     </div>
-
-    {{-- 応援したいユーザー --}}
-    <div class="card-pop">
-        <h3 class="section-title">💛 応援したいユーザー</h3>
-        @foreach($recommendedUsers as $user)
-            <div class="user-row">
-                <div class="flex items-center gap-2">
-                    <div class="avatar-bubble avatar-yellow">{{ mb_substr($user->name, 0, 1) }}</div>
-                    <span style="font-weight:700;color:#444;">{{ $user->name }}</span>
-                </div>
-                @if(!auth()->user()->is_guest)
-                    <a href="{{ route('dm.show', $user->id) }}"
-                    class="btn-pop btn-yellow"
-                    style="padding:6px 14px;font-size:0.8rem;">
-                        📣 応援する
-                    </a>
-                @else
-                    <a href="{{ route('guest.register') }}"
-                    class="btn-pop btn-gray"
-                    style="padding:6px 14px;font-size:0.8rem;">
-                        登録して応援
-                    </a>
-                @endif
+    {{-- 💛 応援したいユーザー --}}
+<div class="card-pop">
+    <h3 class="section-title">💛 応援したいユーザー</h3>
+    @foreach($recommendedUsers as $user)
+        @if(!$user->is_guest) {{-- 追加 --}}
+        <div class="user-row">
+            <div class="flex items-center gap-2">
+                <div class="avatar-bubble avatar-yellow">{{ mb_substr($user->name, 0, 1) }}</div>
+                <span style="font-weight:700;color:#444;">{{ $user->name }}</span>
             </div>
-        @endforeach
-        @if(auth()->user()->is_guest)
-            <p class="text-sm text-gray-500 mt-2">
-                ※応援機能は登録が必要です
-            </p>
+            @if(!auth()->user()->is_guest)
+                <a href="{{ route('dm.show', $user->id) }}"
+                class="btn-pop btn-yellow"
+                style="padding:6px 14px;font-size:0.8rem;">
+                    📣 応援する
+                </a>
+            @else
+                <a href="{{ route('guest.register') }}"
+                class="btn-pop btn-gray"
+                style="padding:6px 14px;font-size:0.8rem;">
+                    登録して応援
+                </a>
+            @endif
+        </div>
         @endif
-    </div>
+    @endforeach
+</div>
     {{-- 🎯 目標一覧 --}}
 @if($goals->count())
     <div class="card-pop">
