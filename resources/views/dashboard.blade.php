@@ -6,7 +6,7 @@
     @if(auth()->check() && auth()->user()->is_guest)
     <div class="bg-yellow-100 text-yellow-800 p-3 rounded mb-4 text-center">
         ゲストモードです。登録するとすべての機能が使えます。
-        <a href="{{ route('register') }}" class="underline ml-2 font-bold">
+        <a href="{{ route('guest.register') }}" class="underline ml-2 font-bold">
             登録する
         </a>
     </div>
@@ -38,7 +38,7 @@
                         🧸 プロフィール編集
                     </a>
                 @else
-                    <a href="{{ route('register') }}" class="btn-pop btn-gray w-full block">
+                    <a href="{{ route('guest.register') }}" class="btn-pop btn-gray w-full block">
                         登録してプロフィール編集
                     </a>
                 @endif
@@ -49,7 +49,7 @@
                         👯 フォロー中ユーザー一覧
                     </a>
                 @else
-                    <a href="{{ route('register') }}" class="btn-pop btn-gray w-full block">
+                    <a href="{{ route('guest.register') }}" class="btn-pop btn-gray w-full block">
                         登録してフォロー一覧を見る
                     </a>
                 @endif
@@ -134,7 +134,7 @@
                         </form>
                     @endif
                 @else
-                    <a href="{{ route('register') }}"
+                    <a href="{{ route('guest.register') }}"
                     class="btn-pop btn-gray"
                     style="padding:6px 14px;font-size:0.8rem;">
                         登録してフォロー
@@ -167,7 +167,7 @@
                         📣 応援する
                     </a>
                 @else
-                    <a href="{{ route('register') }}"
+                    <a href="{{ route('guest.register') }}"
                     class="btn-pop btn-gray"
                     style="padding:6px 14px;font-size:0.8rem;">
                         登録して応援

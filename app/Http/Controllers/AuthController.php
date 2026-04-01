@@ -6,9 +6,18 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
+    public function guestToRegister()
+    {
+        if (auth()->check() && auth()->user()->is_guest) {
+        Auth::logout(); // ゲストならログアウト
+    }
+
+    return redirect()->route('register'); // 新規登録ページにリダイレクト
+    }
     public function guestLogin()
     {
         $user = User::create([
@@ -20,6 +29,7 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect('/home');
+        return redirect()->route('dashboard');
+        
     }
 }

@@ -25,7 +25,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::get('/guest', function () {
     return view('auth.guest');
 });
-
+Route::get('/guest-register', [AuthController::class, 'guestToRegister'])
+    ->name('guest.register');
 Route::get('/guest-login', [AuthController::class, 'guestLogin'])
     ->name('guest.login');
 
@@ -80,10 +81,11 @@ Route::middleware('auth')->group(function () {
 
     // フォロー
     Route::post('/users/{user}/follow', [FollowController::class, 'store'])
+        ->middleware(CheckGuest::class)
         ->name('follow.store');
-
     Route::delete('/users/{user}/unfollow', [FollowController::class, 'destroy'])
-        ->name('follow.destroy');
+    ->middleware(CheckGuest::class)
+    ->name('follow.destroy');
 });
 
 

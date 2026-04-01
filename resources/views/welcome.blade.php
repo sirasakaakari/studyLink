@@ -29,7 +29,7 @@
                 ログイン
             </a>
 
-            <a href="{{ route('register') }}"
+            <a href="{{ route('guest.register') }}"
                class="px-5 py-2 bg-blue-600 text-white rounded">
                 新規登録
             </a>
