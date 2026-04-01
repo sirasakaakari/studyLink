@@ -16,44 +16,44 @@ class FlashcardController extends Controller
     {
         return redirect()->route('flashcards.select');
     }
-     // フォルダ選択画面
+
+    // フォルダ選択画面
     public function select()
     {
         $userId = auth()->id();
-    
-        // 自分の単語帳 + 共通単語帳（user_id=0）
+
         $wordbooks = Wordbook::where('user_id', $userId)
-                    ->orWhere('user_id')
+                    ->orWhere('user_id', 0)
                     ->get();
-    
+
         return view('flashcards.select', compact('wordbooks'));
     }
-      
+
     // セッションを開始してランダム10問をセット
     public function startSession(Request $request)
     {
-        $userId = auth()->id(); 
+        $userId = auth()->id();
         $request->validate([
             'wordbooks' => 'required|array',
         ]);
-    
+
         $wordbookIds = Wordbook::whereIn('id', $request->wordbooks)
                 ->where(function($q) use ($userId) {
                     $q->where('user_id', $userId)
-                      ->orWhere('user_id');
+                      ->orWhere('user_id', 0);
                 })
                 ->pluck('id')
                 ->toArray();
 
-$wordIds = Word::whereIn('wordbook_id', $wordbookIds)
-            ->inRandomOrder()
-            ->limit(10)
-            ->pluck('id')
-            ->toArray();
+        $wordIds = Word::whereIn('wordbook_id', $wordbookIds)
+                    ->inRandomOrder()
+                    ->limit(10)
+                    ->pluck('id')
+                    ->toArray();
 
-if (empty($wordIds)) {
-    return back()->with('error', '選択した単語帳に単語がありません');
-}
+        if (empty($wordIds)) {
+            return back()->with('error', '選択した単語帳に単語がありません');
+        }
 
         session([
             'flashcards' => $wordIds,
@@ -61,10 +61,10 @@ if (empty($wordIds)) {
             'correct_count' => 0,
             'wrong_words' => [],
         ]);
-    
+
         return redirect()->route('flashcards.next');
     }
-    
+
     // 次の単語を表示
     public function next(Request $request)
     {
@@ -77,7 +77,6 @@ if (empty($wordIds)) {
 
         $word = Word::findOrFail($wordIds[$index]);
 
-        // 選択肢作成
         $choices = Word::where('id', '!=', $word->id)
                         ->inRandomOrder()
                         ->limit(3)
@@ -86,7 +85,6 @@ if (empty($wordIds)) {
         $choices[] = $word->meaning;
         shuffle($choices);
 
-        // 進捗
         $progress = [
             'current' => $index + 1,
             'total' => count($wordIds),
@@ -96,6 +94,7 @@ if (empty($wordIds)) {
 
         return view('flashcards.index', compact('word', 'choices', 'progress'));
     }
+
     // 回答処理
     public function answer(Request $request)
     {
@@ -103,7 +102,6 @@ if (empty($wordIds)) {
         $selected = $request->selected;
         $isCorrect = $selected === $word->meaning;
 
-        // ログイン時のみ記録
         if (Auth::check()) {
             $userWord = UserWordResult::firstOrCreate([
                 'user_id' => Auth::id(),
@@ -111,20 +109,18 @@ if (empty($wordIds)) {
             ]);
 
             if ($isCorrect) {
-                $userWord->rank = max(0, $userWord->rank - 1); // ランクを上げる
+                $userWord->rank = max(0, $userWord->rank - 1);
             } else {
-                $userWord->rank = min(3, $userWord->rank + 1); // ランクを下げる
+                $userWord->rank = min(3, $userWord->rank + 1);
                 $userWord->mistake_count = ($userWord->mistake_count ?? 0) + 1;
             }
             $userWord->save();
         }
 
-        // セッション更新
         $request->session()->increment('current_index');
         if ($isCorrect) {
             $request->session()->increment('correct_count');
         } else {
-            // 間違えた単語IDを追加
             $wrongWords = $request->session()->get('wrong_words', []);
             $wrongWords[] = $word->id;
             $request->session()->put('wrong_words', $wrongWords);
@@ -138,53 +134,47 @@ if (empty($wordIds)) {
     }
 
     // 結果表示
-// 結果表示
-public function result(Request $request)
-{
-    $user = auth()->user();
-    $correctCount = session('correct_count', 0);
-    $wordIds = session('flashcards', []);
-    $wrongWords = session('wrong_words', []);
+    public function result(Request $request)
+    {
+        $user = auth()->user();
+        $correctCount = session('correct_count', 0);
+        $wordIds = session('flashcards', []);
+        $wrongWords = session('wrong_words', []);
+        $total = count($wordIds);
+        $achievedGoals = [];
 
-    $total = count($wordIds);
+        $goals = Goal::where('user_id', $user->id)
+            ->where('is_completed', false)
+            ->get();
 
-    $achievedGoals = [];
+        foreach ($goals as $goal) {
+            $goal->current_value = min(
+                $goal->current_value + $correctCount,
+                $goal->target_value
+            );
 
-    $goals = Goal::where('user_id', $user->id)
-        ->where('is_completed', false)
-        ->get();
+            if ($goal->current_value >= $goal->target_value) {
+                $goal->is_completed = true;
+                $goal->save();
+                $user->notify(new GoalCompletedNotification($goal));
+                $achievedGoals[] = $goal->title;
 
-    foreach ($goals as $goal) {
-        $goal->current_value = min(
-            $goal->current_value + $correctCount,
-            $goal->target_value
-        );
-
-        if ($goal->current_value >= $goal->target_value) {
-            $goal->is_completed = true;
-            $goal->save();
-            // 自分に達成通知
-            $user->notify(new GoalCompletedNotification($goal));
-            $achievedGoals[] = $goal->title;
-
-            // 相互フォローに通知
-            $mutualUsers = $user->mutualFollows();
-            foreach ($mutualUsers as $mutualUser) {
-                $mutualUser->notify(
-                    new \App\Notifications\MutualGoalCompletedNotification($goal)
-                );
+                $mutualUsers = $user->mutualFollows();
+                foreach ($mutualUsers as $mutualUser) {
+                    $mutualUser->notify(
+                        new \App\Notifications\MutualGoalCompletedNotification($goal)
+                    );
+                }
+            } else {
+                $goal->save();
             }
-        } else {
-            $goal->save();
         }
-    }
 
-    return view('flashcards.result', compact(
-        'correctCount',
-        'wrongWords',
-        'achievedGoals',
-        'total'
-    ));
-}            
-    
+        return view('flashcards.result', compact(
+            'correctCount',
+            'wrongWords',
+            'achievedGoals',
+            'total'
+        ));
+    }
 }
