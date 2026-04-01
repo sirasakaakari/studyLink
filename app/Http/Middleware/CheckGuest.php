@@ -9,7 +9,7 @@ class CheckGuest
     public function handle(Request $request, Closure $next)
     {
         if (auth()->check() && auth()->user()->is_guest) {
-            return redirect('/home')
+            return redirect()->route('guest.register')
                 ->with('error', 'フォロー機能は登録ユーザーのみ利用できます');
         }
 
