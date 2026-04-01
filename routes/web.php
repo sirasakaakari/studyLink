@@ -17,6 +17,11 @@ use App\Http\Middleware\CheckGuest;
 Route::get('/', function () {
     return view('welcome');
 });
+// 確認後必ず削除！
+Route::get('/debug-wordbooks', function () {
+    return App\Models\Wordbook::all();
+});
+//
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth'])
     ->name('dashboard');
