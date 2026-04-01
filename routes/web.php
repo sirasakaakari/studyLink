@@ -30,8 +30,6 @@ Route::get('/guest-register', [AuthController::class, 'guestToRegister'])
 Route::get('/guest-login', [AuthController::class, 'guestLogin'])
     ->name('guest.login');
 
-Route::post('/follow', [FollowController::class, 'store'])
-    ->middleware(CheckGuest::class);
 Route::middleware('auth')->group(function () {
 
     // プロフィール
@@ -81,10 +79,11 @@ Route::middleware('auth')->group(function () {
 
     // フォロー
     Route::post('/users/{user}/follow', [FollowController::class, 'store'])
-        ->middleware(CheckGuest::class)
-        ->name('follow.store');
-    Route::delete('/users/{user}/unfollow', [FollowController::class, 'destroy'])
-    ->middleware(CheckGuest::class)
+    ->middleware(['auth', CheckGuest::class])
+    ->name('follow.store');
+
+Route::delete('/users/{user}/unfollow', [FollowController::class, 'destroy'])
+    ->middleware(['auth', CheckGuest::class])
     ->name('follow.destroy');
 });
 

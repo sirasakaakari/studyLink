@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Models;
-use App\Models\User;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -15,6 +14,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_guest', // ← 追加
     ];
 
     protected $hidden = [
@@ -27,30 +27,44 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_guest' => 'boolean', // ← 追加
         ];
     }
 
-    public function index()
+    // ゲスト削除時に関連データも全削除
+    protected static function booted()
     {
-        $users = User::where('id', '!=', auth()->id())->get();
-    
-        return view('dashboard', compact('users'));
+        static::deleting(function ($user) {
+            if ($user->is_guest) {
+                $user->wordbooks()->each(function ($wordbook) {
+                    $wordbook->words()->delete();
+                    $wordbook->delete();
+                });
+                $user->goals()->delete();
+                $user->notifications()->delete();
+                $user->followings()->detach();
+                $user->followers()->detach();
+            }
+        });
     }
-    // -----------------------------
-    // 追加部分: 単語帳とのリレーション
-    // -----------------------------
+
+    // 単語帳
     public function wordbooks()
     {
         return $this->hasMany(Wordbook::class);
     }
+
+    // 目標 ← 追加
+    public function goals()
+    {
+        return $this->hasMany(Goal::class);
+    }
+
     // フォローしているユーザー
     public function followings()
     {
         return $this->belongsToMany(
-            User::class,
-            'follows',
-            'follower_id',
-            'following_id'
+            User::class, 'follows', 'follower_id', 'following_id'
         )->withTimestamps();
     }
 
@@ -58,10 +72,7 @@ class User extends Authenticatable
     public function followers()
     {
         return $this->belongsToMany(
-            User::class,
-            'follows',
-            'following_id',
-            'follower_id'
+            User::class, 'follows', 'following_id', 'follower_id'
         )->withTimestamps();
     }
 
@@ -70,12 +81,12 @@ class User extends Authenticatable
     {
         return $this->followings()->where('following_id', $userId)->exists();
     }
+
     public function supportsReceived()
     {
         return $this->hasMany(Support::class, 'target_user_id');
     }
 
-    // 誰に応援したか
     public function supportsGiven()
     {
         return $this->hasMany(Support::class, 'user_id');
@@ -84,12 +95,12 @@ class User extends Authenticatable
     public function mutualFollows()
     {
         $userId = $this->id;
-    
+
         return $this->followings()
             ->get()
             ->filter(function ($following) use ($userId) {
                 return $following->followers()
-                    ->where('follows.follower_id', $userId) // ← テーブル名を明示
+                    ->where('follows.follower_id', $userId)
                     ->exists();
             });
     }

@@ -8,45 +8,48 @@ use App\Models\User;
 
 class FollowController extends Controller
 {
-    // フォロー
     public function store(User $user)
-    {
-        $authUser = Auth::user();
+{
+    $authUser = Auth::user();
 
-        if (!$authUser || $authUser->is_guest) {
-            return redirect('/login')
-                ->with('error', 'フォローするには無料登録が必要です！');
-        }
-        // 自分自身はフォロー不可
-        if ($authUser->id === $user->id) {
-            return back();
-        }
-        // すでにフォローしていなければ追加
-        if (!$authUser->isFollowing($user->id)) {
-            $authUser->followings()->attach($user->id);
-        }
+    if (!$authUser || $authUser->is_guest) {
+        return redirect()->route('guest.register')
+            ->with('error', 'フォローするには無料登録が必要です！');
+    }
 
+    if ($authUser->id === $user->id) {
         return back();
     }
 
-    //
-    // 自分がフォローしているユーザー一覧
-    public function followings()
-    {
-        $user = auth()->user();
-        $followings = $user->followings()->get(); // フォローしているユーザー
-
-        return view('followings.index', compact('followings'));
+    if (!$authUser->isFollowing($user->id)) {
+        $authUser->followings()->attach($user->id);
     }
 
+    return back();
+}
 
-    // フォロー解除
-    public function destroy(User $user)
-    {
-        $authUser = Auth::user();
+public function followings()
+{
+    $user = auth()->user();
 
-        $authUser->followings()->detach($user->id);
+    $followings = $user->followings()
+        ->where('is_guest', false)
+        ->get();
 
-        return back();
+    return view('followings.index', compact('followings'));
+}
+
+public function destroy(User $user)
+{
+    $authUser = Auth::user();
+
+    if (!$authUser || $authUser->is_guest) {
+        return redirect()->route('guest.register')
+            ->with('error', 'フォロー解除には登録が必要です！');
     }
+
+    $authUser->followings()->detach($user->id);
+
+    return back();
+}
 }

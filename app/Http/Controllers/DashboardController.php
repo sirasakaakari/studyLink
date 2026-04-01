@@ -10,20 +10,20 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $users = User::where('id', '!=', Auth::id())->get();
+        // ゲストユーザーを除外
+        $users = User::where('id', '!=', Auth::id())
+            ->where('is_guest', false)
+            ->get();
 
         $recommendedUsers = User::where('id', '!=', Auth::id())
+            ->where('is_guest', false)
             ->inRandomOrder()
             ->take(5)
             ->get();
 
         $goals = Goal::where('user_id', Auth::id())->get();
 
-        return view('dashboard', compact(
-            'users',
-            'recommendedUsers',
-            'goals'
-        ));
+        return view('dashboard', compact('users', 'recommendedUsers', 'goals'));
     }
 }
 

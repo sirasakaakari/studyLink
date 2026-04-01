@@ -9,26 +9,29 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function guestToRegister()
-    {
-        if (auth()->check() && auth()->user()->is_guest) {
-        Auth::logout(); // ゲストならログアウト
-    }
-
-    return redirect()->route('register'); // 新規登録ページにリダイレクト
-    }
     public function guestLogin()
     {
         $user = User::create([
             'name' => 'ゲスト',
-            'email' => 'guest_' . Str::random(10) . '@example.com',
-            'password' => bcrypt(Str::random(16)),
+            'email' => 'guest_' . \Str::random(10) . '@example.com',
+            'password' => bcrypt(\Str::random(16)),
             'is_guest' => true,
         ]);
 
         Auth::login($user);
 
         return redirect()->route('dashboard');
-        
+    }
+
+    public function guestToRegister()
+    {
+        $guestUser = auth()->user();
+
+        if ($guestUser && $guestUser->is_guest) {
+            Auth::logout();
+            $guestUser->delete(); // ゲストユーザーをDBから削除
+        }
+
+        return redirect()->route('register');
     }
 }
