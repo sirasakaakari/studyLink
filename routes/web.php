@@ -18,6 +18,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+//
+Route::get('/delete-guests', function () {
+    $deleted = App\Models\User::where('is_guest', true)->delete();
+    return 'deleted: ' . $deleted;
+});
+//
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth'])
     ->name('dashboard');
