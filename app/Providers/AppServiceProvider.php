@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\ServiceProvider;
@@ -19,11 +18,20 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        // 本番環境でis_guestカラムがなければ自動追加
-        if (Schema::hasTable('users') && !Schema::hasColumn('users', 'is_guest')) {
-            Schema::table('users', function ($table) {
-                $table->boolean('is_guest')->default(false);
-            });
+        // ビルド時はスキップ、実行時のみ実行
+        if (app()->runningInConsole() && !app()->runningUnitTests()) {
+            return;
+        }
+
+        try {
+            // is_guestカラムがなければ自動追加
+            if (Schema::hasTable('users') && !Schema::hasColumn('users', 'is_guest')) {
+                Schema::table('users', function ($table) {
+                    $table->boolean('is_guest')->default(false);
+                });
+            }
+        } catch (\Exception $e) {
+            // DB接続できない場合はスキップ
         }
 
         // ゲストユーザーはログアウト時にDBから削除
