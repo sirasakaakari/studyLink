@@ -17,11 +17,13 @@ use App\Http\Middleware\CheckGuest;
 Route::get('/', function () {
     return view('welcome');
 });
-
 //
-Route::get('/delete-guests', function () {
-    $deleted = App\Models\User::where('is_guest', true)->delete();
-    return 'deleted: ' . $deleted;
+// 確認後必ず削除！
+Route::get('/debug-users', function () {
+    return [
+        'has_column' => \Illuminate\Support\Facades\Schema::hasColumn('users', 'is_guest'),
+        'users' => App\Models\User::all(['id','name','email','is_guest']),
+    ];
 });
 //
 Route::get('/dashboard', [DashboardController::class, 'index'])
