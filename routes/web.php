@@ -20,89 +20,68 @@ Route::get('/', function () {
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth'])
     ->name('dashboard');
-//
-Route::get('/debug-guest', function () {
-    $user = \App\Models\User::create([
-        'name' => 'ゲスト_test',
-        'email' => 'guest_' . \Str::random(10) . '@example.com',
-        'password' => bcrypt(\Str::random(16)),
-        'is_guest' => true,
-    ]);
+    Route::get('/debug-guest', function () {
+        $user = \App\Models\User::create([
+            'name' => 'ゲスト_test',
+            'email' => 'guest_' . \Str::random(10) . '@example.com',
+            'password' => bcrypt(\Str::random(16)),
+            'is_guest' => true,
+        ]);
 
-    \Auth::login($user);
-    request()->session()->regenerate();
-    session()->save();
+        \Auth::login($user);
+        request()->session()->regenerate();
+        session()->save();
 
-    return [
-        'logged_in' => auth()->check(),
-        'user' => auth()->user(),
-        'session_id' => session()->getId(),
-    ];
+        return [
+            'logged_in' => auth()->check(),
+            'user' => auth()->user(),
+            'session_id' => session()->getId(),
+        ];
 });
 //
 Route::get('/guest', function () {
     return view('auth.guest');
 });
-Route::get('/guest-register', [AuthController::class, 'guestToRegister'])
-    ->name('guest.register');
-Route::get('/guest-login', [AuthController::class, 'guestLogin'])
-    ->name('guest.login');
+Route::get('/guest-register', [AuthController::class, 'guestToRegister'])->name('guest.register');
+Route::get('/guest-login', [AuthController::class, 'guestLogin'])->name('guest.login');
+
+// 👇 ゲストOK
+Route::resource('wordbooks', WordbookController::class)->only(['index', 'show', 'create']);
+Route::get('/goals/create', [GoalController::class, 'create'])->name('goals.create');
 
 Route::middleware('auth')->group(function () {
-
     // プロフィール
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // フラッシュカード
-    Route::get('/flashcards', [FlashcardController::class, 'index'])
-        ->name('flashcards.index');
+    Route::get('/flashcards', [FlashcardController::class, 'index'])->name('flashcards.index');
+    Route::get('/flashcards/select', [FlashcardController::class, 'select'])->name('flashcards.select');
+    Route::post('/flashcards/start', [FlashcardController::class, 'startSession'])->name('flashcards.start');
+    Route::get('/flashcards/next', [FlashcardController::class, 'next'])->name('flashcards.next');
+    Route::post('/flashcards/answer', [FlashcardController::class, 'answer'])->name('flashcards.answer');
+    Route::get('/flashcards/result', [FlashcardController::class, 'result'])->name('flashcards.result');
+    Route::get('/flashcards/finish', [FlashcardController::class, 'finish'])->name('flashcards.finish');
 
-    Route::get('/flashcards/select', [FlashcardController::class, 'select'])
-        ->name('flashcards.select');
-
-    Route::post('/flashcards/start', [FlashcardController::class, 'startSession'])
-        ->name('flashcards.start');
-
-    Route::get('/flashcards/next', [FlashcardController::class, 'next'])
-        ->name('flashcards.next');
-
-    Route::post('/flashcards/answer', [FlashcardController::class, 'answer'])
-        ->name('flashcards.answer');
-
-    Route::get('/flashcards/result', [FlashcardController::class, 'result'])
-        ->name('flashcards.result');
-
-    Route::get('/flashcards/finish', [FlashcardController::class, 'finish'])
-        ->name('flashcards.finish');
-
-    // 単語帳
-    Route::resource('wordbooks', WordbookController::class);
-
+    // 👇 保存だけログイン必須
+    Route::post('/goals', [GoalController::class, 'store'])
+        ->middleware('auth')
+        ->name('goals.store');
+    Route::post('/wordbooks', [WordbookController::class, 'store'])->middleware('auth');
     // 単語追加
-    Route::post('/wordbooks/{wordbook}/words', [WordController::class, 'store'])
-        ->name('wordbooks.words.store');
-
-    // 目標
-    Route::get('/goals/create', [GoalController::class, 'create'])->name('goals.create');
-    Route::post('/goals', [GoalController::class, 'store'])->name('goals.store');
-
+    Route::post('/wordbooks/{wordbook}/words', [WordController::class, 'store'])->name('wordbooks.words.store');
     // ユーザー一覧・プロフィール
-    Route::get('/users', [UserController::class, 'index'])
-        ->name('users.index');
-
-    Route::get('/users/{user}', [UserController::class, 'show'])
-        ->name('users.show');
-
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
     // フォロー
     Route::post('/users/{user}/follow', [FollowController::class, 'store'])
     ->middleware(['auth', CheckGuest::class])
     ->name('follow.store');
 
-Route::delete('/users/{user}/unfollow', [FollowController::class, 'destroy'])
-    ->middleware(['auth', CheckGuest::class])
-    ->name('follow.destroy');
+    Route::delete('/users/{user}/unfollow', [FollowController::class, 'destroy'])
+        ->middleware(['auth', CheckGuest::class])
+        ->name('follow.destroy');
 });
 
 
