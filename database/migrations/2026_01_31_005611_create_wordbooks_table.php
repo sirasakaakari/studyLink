@@ -13,11 +13,10 @@ return new class extends Migration
     {
         Schema::create('wordbooks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('name'); // 単語帳名（例：英検2級 / 苦手単語）
+            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete(); // ← nullable()追加
+            $table->string('name');
             $table->timestamps();
         });
-        
     }
 
     /**

@@ -18,12 +18,19 @@ Route::get('/', function () {
     return view('welcome');
 });
 //
+    // 確認後必ず削除！
+    Route::get('/fix-wordbooks-schema', function () {
+        \Illuminate\Support\Facades\Schema::table('wordbooks', function ($table) {
+            $table->foreignId('user_id')->nullable()->change();
+        });
+        return 'done';
+    });
 // 確認後必ず削除！
 Route::get('/run-seeder', function () {
     // user_id=0で共通単語帳を作成
     $wordbook = App\Models\Wordbook::create([
         'name' => '英検2級',
-        'user_id' => 0,
+        'user_id' => null,
     ]);
 
     $words = [

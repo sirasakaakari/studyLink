@@ -23,7 +23,7 @@ class FlashcardController extends Controller
         $userId = auth()->id();
 
         $wordbooks = Wordbook::where('user_id', $userId)
-                    ->orWhere('user_id', 0)
+                    ->orWhereNull('user_id')
                     ->get();
 
         return view('flashcards.select', compact('wordbooks'));
@@ -40,7 +40,7 @@ class FlashcardController extends Controller
         $wordbookIds = Wordbook::whereIn('id', $request->wordbooks)
                 ->where(function($q) use ($userId) {
                     $q->where('user_id', $userId)
-                      ->orWhere('user_id', 0);
+                        ->orWhereNull('user_id'); //
                 })
                 ->pluck('id')
                 ->toArray();
