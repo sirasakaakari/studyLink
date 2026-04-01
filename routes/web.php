@@ -21,18 +21,22 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth'])
     ->name('dashboard');
 //
-// 確認後削除！
-Route::get('/check-session', function () {
-    return [
-        'sessions_table' => \Illuminate\Support\Facades\Schema::hasTable('sessions'),
-        'check' => auth()->check(),
-    ];
-});
+Route::get('/debug-guest', function () {
+    $user = \App\Models\User::create([
+        'name' => 'ゲスト_test',
+        'email' => 'guest_' . \Str::random(10) . '@example.com',
+        'password' => bcrypt(\Str::random(16)),
+        'is_guest' => true,
+    ]);
 
-Route::get('/check-auth', function () {
+    \Auth::login($user);
+    request()->session()->regenerate();
+    session()->save();
+
     return [
-        'check' => auth()->check(),
+        'logged_in' => auth()->check(),
         'user' => auth()->user(),
+        'session_id' => session()->getId(),
     ];
 });
 //
