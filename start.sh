@@ -12,9 +12,13 @@ DB_DATABASE=${DB_DATABASE}
 DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
 SESSION_DRIVER=database
+SESSION_LIFETIME=120
+SESSION_DOMAIN=${SESSION_DOMAIN:-studylink-fklm.onrender.com}
+SESSION_SECURE_COOKIE=true
+LOG_CHANNEL=stderr
 EOF
-
 php artisan config:clear
+php artisan cache:clear
 php artisan migrate --force
 sed -i "s/NGINX_PORT/${PORT:-10000}/" /etc/nginx/sites-available/default
 php-fpm -D
