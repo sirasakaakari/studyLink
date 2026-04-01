@@ -20,7 +20,22 @@ Route::get('/', function () {
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth'])
     ->name('dashboard');
+//
+// 確認後削除！
+Route::get('/check-session', function () {
+    return [
+        'sessions_table' => \Illuminate\Support\Facades\Schema::hasTable('sessions'),
+        'check' => auth()->check(),
+    ];
+});
 
+Route::get('/check-auth', function () {
+    return [
+        'check' => auth()->check(),
+        'user' => auth()->user(),
+    ];
+});
+//
 Route::get('/guest', function () {
     return view('auth.guest');
 });
