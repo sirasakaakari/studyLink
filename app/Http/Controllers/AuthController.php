@@ -10,18 +10,38 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     public function guestLogin()
-    {
-        $user = User::create([
-            'name' => 'ゲスト',
-            'email' => 'guest_' . \Str::random(10) . '@example.com',
-            'password' => bcrypt(\Str::random(16)),
-            'is_guest' => true,
-        ]);
-
-        Auth::login($user);
-
+{
+    if (auth()->check() && auth()->user()->is_guest) {
         return redirect()->route('dashboard');
     }
+
+    $user = User::create([
+        'name' => 'ゲスト_' . \Str::random(5),
+        'email' => 'guest_' . \Str::random(10) . '@example.com',
+        'password' => bcrypt(\Str::random(16)),
+        'is_guest' => true,
+    ]);
+
+    Auth::login($user);
+    
+    // セッションを再生成して確実に保存
+    request()->session()->regenerate();
+
+    return redirect()->intended(route('dashboard'));
+}
+    // public function guestLogin()
+    // {
+    //     $user = User::create([
+    //         'name' => 'ゲスト',
+    //         'email' => 'guest_' . \Str::random(10) . '@example.com',
+    //         'password' => bcrypt(\Str::random(16)),
+    //         'is_guest' => true,
+    //     ]);
+
+    //     Auth::login($user);
+
+    //     return redirect()->route('dashboard');
+    // }
 
     public function guestToRegister()
     {
