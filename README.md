@@ -48,12 +48,12 @@ dashboard.blade.phpに通知エリア追加
 お祝いボタンを押すと、目標達成したユーザーにスタンプが送信される
  ### 実装のポイント：
   相互フォロー関係を正しく取得する mutualFollows() の作成
-  目標達成処理のトリガーが FlashcardController::result() にあることに注意
-  通知クラスとBladeテンプレートでの表示・既読処理を組み合わせる
+  目標達成処理のトリガーが FlashcardController::result() にあることに注意<br>
+  通知クラスとBladeテンプレートでの表示・既読処理を組み合わせる<br>
 ### 苦労した点：
-  GoalController に追加した通知処理が実際には呼ばれず、FlashcardController 内で処理されていた
-  クロージャ内で $this を直接使うとスコープ問題になる
-  Vite の再起動やブラウザリロードを忘れると通知が表示されない
+  GoalController に追加した通知処理が実際には呼ばれず、FlashcardController 内で処理されていた<br>
+  クロージャ内で $this を直接使うとスコープ問題になる<br>
+  Vite の再起動やブラウザリロードを忘れると通知が表示されない<br>
 
 ## 今後の展望
 ・学習ログのダッシュボード可視化<br>
