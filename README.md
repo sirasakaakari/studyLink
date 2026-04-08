@@ -1,59 +1,61 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+StudyLinkS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+単語学習 × 目標達成 × お祝い通知
+― 学習から広がる、応援の輪。―
 
-## About Laravel
+概要
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+StudyLinkSは、単語学習を続けやすくするためのサービスです。
+学習のモチベーション維持や、成果の可視化、仲間との応援機能が特徴です。
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+課題:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+😓 忘れやすい：苦手な単語が放置されがち
+😔 続かない：一人でやるためモチベーションが保ちにくい
+😕 成果が見えにくい：達成感を得にくい状況
 
-## Learning Laravel
+主な特徴:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+📚 単語学習機能：フラッシュカードで効率的に覚えられる
+📖 自作単語帳：自分で単語帳を作成・一覧で確認・学習可能
+🔥 応援機能：学習仲間に気軽に応援メッセージを送信可能
+🎯 相互フォローお祝い機能：
+自分が目標を達成すると、相互フォロワーに
+「〇〇さんが目標達成しました！お祝いスタンプを送りますか？」と通知が届き、
+お祝いボタンを押すと目標達成したユーザーにスタンプが送られる
+→これによりメッセージを書かなくともボタン一個の操作で簡単に応援できる
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+通知機能の流れ
+通知クラス作成
+MutualGoalCompletedNotification：相互フォロー相手の目標達成通知
+CelebrationReceivedNotification：お祝い通知
+Userモデル修正
+mutualFollows()で相互フォロー取得
+GoalController修正
+complete() → 相互フォローに通知送信
+celebrate() → お祝い通知送信
+Bladeテンプレート修正
+dashboard.blade.phpに通知エリア追加
 
-## Laravel Sponsors
+通知DB保存 → 未読のみ表示 → 各通知に対応したボタンを表示
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+##一番
 
-### Premium Partners
+🎯 相互フォロー通知とお祝い機能
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+自分が目標を達成すると、相互フォローしているユーザーのダッシュボードに
+「〇〇さんが目標達成しました！お祝いスタンプを送りますか？」と通知が届く
+お祝いボタンを押すと、目標達成したユーザーにスタンプが送信される
+実装のポイント：
+相互フォロー関係を正しく取得する mutualFollows() の作成
+目標達成処理のトリガーが FlashcardController::result() にあることに注意
+通知クラスとBladeテンプレートでの表示・既読処理を組み合わせる
+苦労した点：
+GoalController に追加した通知処理が実際には呼ばれず、FlashcardController 内で処理されていた
+クロージャ内で $this を直接使うとスコープ問題になる
+Vite の再起動やブラウザリロードを忘れると通知が表示されない
 
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+今後の展望
+学習ログのダッシュボード可視化
+UI/UX改善
+グラフ機能追加：学習推移・達成率を可視化
