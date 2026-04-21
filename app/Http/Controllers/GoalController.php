@@ -86,7 +86,8 @@ class GoalController extends Controller
         // ✅ 自分の通知を既読にする ← ⭐ここ追加
         $notification = auth()->user()
             ->notifications()
-            ->where('data->goal_id', $request->goal_id)
+            // ->where('data->goal_id', $request->goal_id)
+            ->whereRaw("data->>'goal_id' = ?", [(string) $request->goal_id])
             ->first();
     
         if ($notification) {
