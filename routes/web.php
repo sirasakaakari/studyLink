@@ -46,7 +46,7 @@ Route::get('/guest-register', [AuthController::class, 'guestToRegister'])->name(
 Route::get('/guest-login', [AuthController::class, 'guestLogin'])->name('guest.login');
 
 // 👇 ゲストOK
-Route::resource('wordbooks', WordbookController::class)->only(['index', 'show', 'create']);
+Route::resource('wordbooks', WordbookController::class)->only(['index', 'show', 'create','store']);
 Route::get('/goals/create', [GoalController::class, 'create'])->name('goals.create');
 
 Route::middleware('auth')->group(function () {
