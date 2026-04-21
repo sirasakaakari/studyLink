@@ -86,7 +86,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/goals', [GoalController::class, 'store'])
         ->middleware('auth')
         ->name('goals.store');
-    Route::post('/wordbooks', [WordbookController::class, 'store']);
+    // Route::post('/wordbooks', [WordbookController::class, 'store']);
     // 単語追加
     Route::post('/wordbooks/{wordbook}/words', [WordController::class, 'store'])->name('wordbooks.words.store');
     // ユーザー一覧・プロフィール
