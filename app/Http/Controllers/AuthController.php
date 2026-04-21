@@ -26,8 +26,9 @@ class AuthController extends Controller
     
     // セッションを再生成して確実に保存
     request()->session()->regenerate();
+    return redirect()->route('dashboard');
 
-    return redirect()->intended(route('dashboard'));
+    // return redirect()->intended(route('dashboard'));
 }
     // public function guestLogin()
     // {

@@ -20,6 +20,7 @@ EOF
 php artisan config:clear
 php artisan cache:clear
 php artisan migrate --force
+php artisan tinker --execute="if(\App\Models\Wordbook::count() === 0) { \Artisan::call('db:seed', ['--class' => 'Eiken2WordsSeeder', '--force' => true]); echo 'Seeded!'; } else { echo 'Skip.'; }"
 sed -i "s/NGINX_PORT/${PORT:-10000}/" /etc/nginx/sites-available/default
 php-fpm -D
 nginx -g 'daemon off;'
