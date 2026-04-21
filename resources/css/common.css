@@ -1,13 +1,7 @@
-/* ===================================================
-   resources/css/dashboard.css
-   ポップかわいいデザインシステム
-=================================================== */
-
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
 
 /* ===== ベース ===== */
 body {
-    font-family: 'Nunito', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: linear-gradient(135deg, #fff0f6 0%, #fff9e6 50%, #f0faff 100%);
     min-height: 100vh;
 }
@@ -177,7 +171,7 @@ body {
 /* ===== ボタン共通 ===== */
 .btn-pop {
     display: inline-block;
-    font-family: 'Nunito', sans-serif;
+    font-family: inherit;
     font-weight: 700;
     font-size: 0.9rem;
     border-radius: 999px;
