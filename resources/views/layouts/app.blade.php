@@ -9,9 +9,9 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     {{-- Google Fonts --}}
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-
+ -->
     {{-- Vite: app.css + dashboard.css + app.js --}}
     @vite(['resources/css/app.css', 'resources/css/common.css', 'resources/js/app.js'])
 </head>
