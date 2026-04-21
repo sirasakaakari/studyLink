@@ -23,6 +23,18 @@ Route::get('/clear', function () {
 Route::get('/', function () {
     return view('welcome');
 });
+// ゲストOK（authグループの外に移動）
+Route::get('/flashcards', [FlashcardController::class, 'index'])->name('flashcards.index');
+Route::get('/flashcards/select', [FlashcardController::class, 'select'])->name('flashcards.select');
+Route::post('/flashcards/start', [FlashcardController::class, 'startSession'])->name('flashcards.start');
+Route::get('/flashcards/next', [FlashcardController::class, 'next'])->name('flashcards.next');
+Route::post('/flashcards/answer', [FlashcardController::class, 'answer'])->name('flashcards.answer');
+Route::get('/flashcards/result', [FlashcardController::class, 'result'])->name('flashcards.result');
+Route::get('/flashcards/finish', [FlashcardController::class, 'finish'])->name('flashcards.finish');
+
+// 目標も同様
+Route::get('/goals/create', [GoalController::class, 'create'])->name('goals.create');
+
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth'])
     ->name('dashboard');
@@ -62,13 +74,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // フラッシュカード
-    Route::get('/flashcards', [FlashcardController::class, 'index'])->name('flashcards.index');
-    Route::get('/flashcards/select', [FlashcardController::class, 'select'])->name('flashcards.select');
-    Route::post('/flashcards/start', [FlashcardController::class, 'startSession'])->name('flashcards.start');
-    Route::get('/flashcards/next', [FlashcardController::class, 'next'])->name('flashcards.next');
-    Route::post('/flashcards/answer', [FlashcardController::class, 'answer'])->name('flashcards.answer');
-    Route::get('/flashcards/result', [FlashcardController::class, 'result'])->name('flashcards.result');
-    Route::get('/flashcards/finish', [FlashcardController::class, 'finish'])->name('flashcards.finish');
+    // Route::get('/flashcards', [FlashcardController::class, 'index'])->name('flashcards.index');
+    // Route::get('/flashcards/select', [FlashcardController::class, 'select'])->name('flashcards.select');
+    // Route::post('/flashcards/start', [FlashcardController::class, 'startSession'])->name('flashcards.start');
+    // Route::get('/flashcards/next', [FlashcardController::class, 'next'])->name('flashcards.next');
+    // Route::post('/flashcards/answer', [FlashcardController::class, 'answer'])->name('flashcards.answer');
+    // Route::get('/flashcards/result', [FlashcardController::class, 'result'])->name('flashcards.result');
+    // Route::get('/flashcards/finish', [FlashcardController::class, 'finish'])->name('flashcards.finish');
 
     // 👇 保存だけログイン必須
     Route::post('/goals', [GoalController::class, 'store'])
