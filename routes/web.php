@@ -13,7 +13,13 @@ use App\Models\User;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\AuthController;
 use App\Http\Middleware\CheckGuest;
-
+Route::get('/clear', function () {
+    \Artisan::call('config:clear');
+    \Artisan::call('cache:clear');
+    \Artisan::call('route:clear');
+    \Artisan::call('view:clear');
+    return 'cleared';
+});
 Route::get('/', function () {
     return view('welcome');
 });
