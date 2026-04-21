@@ -87,7 +87,7 @@ class GoalController extends Controller
         $notification = auth()->user()
             ->notifications()
             // ->where('data->goal_id', $request->goal_id)
-            ->whereRaw("data->>'goal_id' = ?", [(string) $request->goal_id])
+            ->whereRaw("(data->>'goal_id')::integer = ?", [$request->goal_id])
             ->first();
     
         if ($notification) {
