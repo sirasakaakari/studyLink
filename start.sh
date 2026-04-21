@@ -17,6 +17,11 @@ SESSION_DOMAIN=${SESSION_DOMAIN:-studylink-fklm.onrender.com}
 SESSION_SECURE_COOKIE=true
 LOG_CHANNEL=stderr
 EOF
+
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
 php artisan config:clear
 php artisan cache:clear
 php artisan migrate --force
